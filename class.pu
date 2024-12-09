@@ -1,0 +1,111 @@
+@startuml
+
+class Cell {
+	-byte type
+	+Cell(byte type = 0)
+	+byte getType()
+	+void setType(byte type)
+	+bool isFilled()
+}
+
+enum GameStatus {
+	WIN,
+	DRAW,
+	Playing
+}
+
+class GameResult {
+	+bool isWin
+	+bool isDraw
+	+Player winner
+	+GameResult()
+	+GameResult(bool isDraw)
+	+GameResult(bool isWin, Player winner)
+}
+
+interface IBoard {
+	+void draw(Coordinate coordinate, Player currentPlayer)
+	+void erase(Coordinate coordinate)
+	+bool is_board_full()
+	+Cell get_cell(Coordinate coordinate)
+}
+
+class Board {
+	-Cell cells[3][3]
+	+Board()
+	+void draw(Coordinate coordinate, Player currentPlayer)
+	+void erase(Coordinate coordinate)
+	+bool is_board_full()
+	+Cell get_cell(Coordinate coordinate)
+}
+
+class BoardPrinter {
+	-Board board
+	-void print_split()
+	-void print_row(int row)
+	+void print(Board board)
+}
+
+class GameJudge {
+	-Board board
+	-GameResult check_row_winner(byte row)
+	-GameResult check_column_winner(byte column)
+	-GameResult check_slash_winner()
+	-GameResult check_backslash_winner()
+	+GameResult judge(Board board)
+}
+
+class Coordinate {
+	+byte x
+	+byte y
+	+Coordinate(byte x = -1, byte y = -1)
+}
+
+class Player {
+	-byte type
+	+Player(byte type)
+	+byte getType()
+	+void next()
+}
+
+class BestMoveResult {
+	+Coordinate coordinate
+	+int alpha
+	+int beta
+	+int value
+	+BestMoveResult()
+	+BestMoveResult(int value)
+	+BestMoveResult(Coordinate coord, int alpha, int beta, int value)
+}
+
+class Robot {
+	-Player robot_player
+	-BestMoveResult get_best_next_move(Board board, Player current_player, int alpha, int beta)
+	-bool is_board_empty(Board board)
+	+Robot(Player player)
+	+Coordinate get_next_move(Board board)
+}
+
+
+
+Board ..|> IBoard
+Board ..> Cell
+Board ..> GameResult
+Board ..> Coordinate
+Player ..> IBoard
+Cell ..> Coordinate
+
+GameResult ..> GameStatus
+
+GameJudge ..> GameResult
+GameJudge ..> Board
+
+BoardPrinter ..> Board
+
+Robot ..> BestMoveResult
+Robot ..> Player
+
+BestMoveResult ..> Coordinate
+GameResult ..> Player
+
+@enduml
