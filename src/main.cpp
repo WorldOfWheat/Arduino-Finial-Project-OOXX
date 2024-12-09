@@ -1,11 +1,12 @@
 #include <Arduino.h>
-#include "./lcd.cpp"
 
 void setup() {
-	LCD_Controller lcd(0x20);
-	lcd.print(LCD_Block(0, 0, 'H'));
+	pinMode(2, OUTPUT);
 }
 
 void loop() {
-
+	digitalWrite(2, HIGH);
+	delay(1000);
+	digitalWrite(2, LOW);
+	delay(1000);
 }

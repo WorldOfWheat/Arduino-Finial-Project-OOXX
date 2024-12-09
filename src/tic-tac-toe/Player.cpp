@@ -1,20 +1,27 @@
-#include <Arduino.h>
+#ifndef PLAYER_H
+#define PLAYER_H
+	#include <Arduino.h>
+	#include "./Coordinate.cpp"
+#endif
+
+enum class PlayerType {
+	O = 'O',
+	X = 'X'
+};
 
 class Player {
 private:
-	byte type;
+	PlayerType type;
+	IBoard* board;
 public:
-	Player(byte type) {
-		this->type = type;
+	Player(PlayerType type, IBoard* board) : type(type), board(board) {
 	};
-	byte getType() {
+
+	PlayerType getType() {
 		return type;
 	}
-	void next() {
-		if (type == 'O') {
-			type = 'X';
-		} else {
-			type = 'O';
-		}
+
+	void play(Coordinate coordinate) {
+		board->draw(coordinate, *this);
 	}
 };

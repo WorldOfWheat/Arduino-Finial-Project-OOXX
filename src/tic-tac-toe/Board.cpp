@@ -2,6 +2,7 @@
 #include "./tic-tac-toe/Player.cpp"
 #include "./tic-tac-toe/Coordinate.cpp"
 
+
 class Cell {
 private:
 	// O = 1
@@ -21,80 +22,57 @@ public:
 	}
 };
 
-class GameResult {
-public:
-	GameResult() : isWin(false), isDraw(false), winner('O') {};
-	GameResult(bool isDraw) : isWin(false), isDraw(isDraw), winner('O') {};
-	GameResult(bool isWin, Player winner) : isWin(isWin), winner(winner) {};
-	bool isWin;
-	bool isDraw;
-	Player winner;
+enum class GameStatus {
+	PLAYING,
+	WIN,
+	DRAW
 };
 
-class Board {
+class GameResult {
+public:
+	GameStatus status;
+	byte winner;
+	GameResult(bool isWin, byte winner = 0) {
+		if (isWin) {
+			status = GameStatus::WIN;
+			this->winner = winner;
+		} else {
+			status = GameStatus::DRAW;
+		}
+	}
+};
+
+class IBoard {
+public:
+	virtual void draw(Coordinate coordinate, Player currentPlayer) = 0;
+	virtual void erase(Coordinate coordinate) = 0;
+	virtual bool is_board_full() = 0;
+	virtual Cell get_cell(Coordinate coordinate) = 0;
+};
+
+class Board : public IBoard {
 private:
 	Cell cells[3][3];
 
-	GameResult check_row_winner(byte row) {
-		if (
-			cells[row][0].getType() != 0 &&
-			cells[row][0].getType() == cells[row][1].getType() && 
-			cells[row][1].getType() == cells[row][2].getType()
-		) {
-			return GameResult(true, cells[row][0].getType());
-		}
-		return GameResult(false);
-	}
-
-	GameResult check_column_winner(byte column) {
-		if (
-			cells[0][column].getType() != 0 &&
-			cells[0][column].getType() == cells[1][column].getType() && 
-			cells[1][column].getType() == cells[2][column].getType()
-		) {
-			return GameResult(true, cells[0][column].getType());
-		}
-		return GameResult(false);
-	}
-
-	GameResult check_slash_winner() {
-		if (
-			cells[0][0].getType() != 0 &&
-			cells[0][0].getType() == cells[1][1].getType() && 
-			cells[1][1].getType() == cells[2][2].getType()
-		) {
-			return GameResult(true, cells[0][0].getType());
-		}
-		return GameResult(false);
-	}
-
-	GameResult check_backslash_winner() {
-		if (
-			cells[1][1].getType() != 0 &&
-			cells[0][2].getType() == cells[1][1].getType() && 
-			cells[1][1].getType() == cells[2][0].getType()
-		) {
-			return GameResult(true, cells[0][2].getType());
-		}
-		return GameResult(false);
-	}
-
-	void print_split() {
-		Serial.println("-+-+-");
-	}
-
-	void print_row(int row) {
+public:
+	Board() {
 		for (int i = 0; i < 3; i++) {
-			if (cells[row][i].getType() == 0) {
-				Serial.print(" ");
-			} else {
-				Serial.print((char) cells[row][i].getType());
-			}
-			if (i < 2) {
-				Serial.print("|");
+			for (int j = 0; j < 3; j++) {
+				cells[i][j] = Cell();
 			}
 		}
-		Serial.println();
+	}
+
+	void draw(Coordinate coordinate, Player currentPlayer) {
+		int x = coordinate.x;
+		int y = coordinate.y;
+		cells[x][y].setType((char) currentPlayer.getType());
+	}
+
+	void erase(Coordinate coordinate) {
+		int x = coordinate.x;
+		int y = coordinate.y;
+		cells[x][y].setType(0);
 	}
 
 	bool is_board_full() {
@@ -108,63 +86,120 @@ private:
 		return true;
 	}
 
+	Cell get_cell(Coordinate coordinate) {
+		return cells[coordinate.x][coordinate.y];
+	}
+};
+
+class BoardPrinter {
+private:
+	Board board;
+	void print_split() {
+		Serial.println("-+-+-");
+	}
+
+	void print_row(int row) {
+		for (int i = 0; i < 3; i++) {
+			if (board.get_cell(Coordinate(row, i)).getType() == 0) {
+				Serial.print(" ");
+			} else {
+				Serial.print((char) board.get_cell(Coordinate(row, i)).getType());
+			}
+			if (i < 2) {
+				Serial.print("|");
+			}
+		}
+		Serial.println();
+	}
+
 public:
-	Board() {
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				cells[i][j] = Cell();
-			}
-		}
-	}
-
-	GameResult check_winner() {
-		for (int i = 0; i < 3; i++) {
-			GameResult row_winner = check_row_winner(i);
-			GameResult column_winner = check_column_winner(i);
-			if (row_winner.isWin) {
-				return row_winner;
-			}
-			if (column_winner.isWin) {
-				return column_winner;
-			}
-		}
-		GameResult slash_winner = check_slash_winner();
-		GameResult backslash_winner = check_backslash_winner();
-		if (slash_winner.isWin) {
-			return slash_winner;
-		}
-		if (backslash_winner.isWin) {
-			return backslash_winner;
-		}
-
-		if (is_board_full()) {
-			return GameResult(true);
-		}
-
-		return 0;
-	}
-
-	void draw(Coordinate coordinate, Player currentPlayer) {
-		int x = coordinate.x;
-		int y = coordinate.y;
-		cells[x][y].setType(currentPlayer.getType());
-	}
-
-	void erase(Coordinate coordinate) {
-		int x = coordinate.x;
-		int y = coordinate.y;
-		cells[x][y].setType(0);
-	}
-
-	void print() {
+	void print(Board board) {
 		print_split();
 		for (int i = 0; i < 3; i++) {
 			print_row(i);
 			print_split();
 		}
+
+	}
+};
+
+class GameJudge {
+private:
+	IBoard* board;
+
+	GameResult check_row_winner(byte row) {
+		Cell cell = (*board).get_cell(Coordinate(row, 0));
+		Cell cell2 = (*board).get_cell(Coordinate(row, 1));
+		Cell cell3 = (*board).get_cell(Coordinate(row, 2));
+		if (
+			cell.getType() != 0 &&
+			cell.getType() == cell2.getType() && 
+			cell2.getType() == cell3.getType()
+		) {
+			return GameResult(true, cell.getType());
+		}
+		return GameResult(false);
 	}
 
-	Cell get_cell(Coordinate coordinate) {
-		return cells[coordinate.x][coordinate.y];
+	GameResult check_column_winner(byte column) {
+		Cell cell = (*board).get_cell(Coordinate(0, column));
+		Cell cell2 = (*board).get_cell(Coordinate(1, column));
+		Cell cell3 = (*board).get_cell(Coordinate(2, column));
+		if (
+			cell.getType() != 0 &&
+			cell.getType() == cell2.getType() && 
+			cell2.getType() == cell3.getType()
+		) {
+			return GameResult(true, cell.getType());
+		}
+	}
+
+	GameResult check_slash_winner() {
+		Cell cell = (*board).get_cell(Coordinate(0, 0));
+		Cell cell2 = (*board).get_cell(Coordinate(1, 1));
+		Cell cell3 = (*board).get_cell(Coordinate(2, 2));
+		if (
+			cell.getType() != 0 &&
+			cell.getType() == cell2.getType() && 
+			cell2.getType() == cell3.getType()
+		) {
+			return GameResult(true, cell.getType());
+		}
+	}
+
+	GameResult check_backslash_winner() {
+		Cell cell = (*board).get_cell(Coordinate(0, 2));
+		Cell cell2 = (*board).get_cell(Coordinate(1, 1));
+		Cell cell3 = (*board).get_cell(Coordinate(2, 0));
+		if (
+			cell.getType() != 0 &&
+			cell.getType() == cell2.getType() && 
+			cell2.getType() == cell3.getType()
+		) {
+			return GameResult(true, cell.getType());
+		}
+	}
+
+public:
+	GameResult judge(Board* board) {
+		for (int i = 0; i < 3; i++) {
+			GameResult row_winner = check_row_winner(i);
+			GameResult column_winner = check_column_winner(i);
+			if (row_winner.status == GameStatus::WIN) {
+				return row_winner;
+			}
+			if (column_winner.status == GameStatus::WIN) {
+				return column_winner;
+			}
+		}
+		GameResult slash_winner = check_slash_winner();
+		GameResult backslash_winner = check_backslash_winner();
+		if (slash_winner.status == GameStatus::WIN) {
+			return slash_winner;
+		}
+		if (backslash_winner.status == GameStatus::WIN) {
+			return backslash_winner;
+		}
+
 	}
 };
