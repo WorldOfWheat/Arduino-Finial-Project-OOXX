@@ -1,8 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
-	#include <Arduino.h>
-	#include "./Coordinate.cpp"
-#endif
+#include "./Coordinate.cpp"
 
 enum class PlayerType {
 	O = 'O',
@@ -12,16 +10,20 @@ enum class PlayerType {
 class Player {
 private:
 	PlayerType type;
-	IBoard* board;
 public:
-	Player(PlayerType type, IBoard* board) : type(type), board(board) {
-	};
+	Player(PlayerType type) : 
+		type(type)
+		{ };
+	
+	bool operator == (const Player& compare_player) {
+		return type == compare_player.type;
+	}
 
 	PlayerType getType() {
+		Serial.println("getType");
+		Serial.println((char) type);
 		return type;
 	}
-
-	void play(Coordinate coordinate) {
-		board->draw(coordinate, *this);
-	}
 };
+
+#endif
