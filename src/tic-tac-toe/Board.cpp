@@ -13,26 +13,28 @@ public:
 
 class Cell : public ICell {
 private:
-	Player* drawer;
+	Player drawer = Player(PlayerType::O);
+	bool is_filled = false;
 public:
 	Cell() {
-		drawer = nullptr;
 	}
 
-	Cell(Player* drawer) {
+	Cell(Player drawer) {
+		is_filled = true;
 		this->drawer = drawer;
 	}
 
 	Player getDrawer() {
-		return *drawer;
+		return drawer;
 	}
 
 	void setDrawer(Player drawer) {
-		this->drawer = &drawer;
+		is_filled = true;
+		this->drawer = drawer;
 	}
 
 	bool isFilled() {
-		return drawer != nullptr;
+		return is_filled;
 	}
 
 	bool operator == (const Cell& compare_cell) {
@@ -110,7 +112,7 @@ private:
 
 	void print_row(int row) {
 		for (int i = 0; i < 3; i++) {
-			Cell cell = (*board).get_cell(Coordinate(row, i));
+			Cell cell = board->get_cell(Coordinate(row, i));
 			if (cell.isFilled()) {
 				Serial.print((char) cell.getDrawer().getType());
 			}

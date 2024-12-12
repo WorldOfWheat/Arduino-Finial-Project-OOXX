@@ -39,26 +39,27 @@ private:
 		int minimum_value = 1e9;
 		int maximum_value = -1e9;
 		Coordinate best_coordinate;
-
 		GameResult game_result = game_judge.judge();
+
 		if (game_result.status == GameStatus::DRAW) {
 			return BestMoveResult(0);
 		}
+		
 		if (game_result.status == GameStatus::WIN) {
-			if (game_result.winner.getType() == robot_player.getType()) {
+			if (game_result.winner == robot_player) {
 				return BestMoveResult(1);
 			}
 			return BestMoveResult(-1);
 		}
-
+		
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				Coordinate coordinate = Coordinate(i, j);
-				if ((*board).get_cell(coordinate).isFilled()) {
+				if (board->get_cell(coordinate).isFilled()) {
 					continue;
 				}
 
-				(*board).draw(coordinate, current_player);
+				board->draw(coordinate, current_player);
 				Player opponent = get_opponent(current_player);
 
 				BestMoveResult next_move = minimax(opponent, alpha, beta);

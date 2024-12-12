@@ -5,9 +5,9 @@
 #include "./Player.cpp"
 
 enum class GameStatus {
-	PLAYING,
-	WIN,
-	DRAW
+	PLAYING = 0,
+	WIN = 1,
+	DRAW = 2
 };
 
 class GameResult {
@@ -36,12 +36,26 @@ class GameJudge : public IGameJudge {
 private:
 	IBoard* board;
 
+	bool is_row_filled(byte row) {
+		Cell cell = board->get_cell(Coordinate(row, 0));
+		Cell cell2 = board->get_cell(Coordinate(row, 1));
+		Cell cell3 = board->get_cell(Coordinate(row, 2));
+		return cell.isFilled() && cell2.isFilled() && cell3.isFilled();
+	}
+
+	bool is_column_filled(byte column) {
+		Cell cell = board->get_cell(Coordinate(0, column));
+		Cell cell2 = board->get_cell(Coordinate(1, column));
+		Cell cell3 = board->get_cell(Coordinate(2, column));
+		return cell.isFilled() && cell2.isFilled() && cell3.isFilled();
+	}
+
 	Cell get_row_winner(byte row) {
-		Cell cell = (*board).get_cell(Coordinate(row, 0));
-		Cell cell2 = (*board).get_cell(Coordinate(row, 1));
-		Cell cell3 = (*board).get_cell(Coordinate(row, 2));
+		Cell cell = board->get_cell(Coordinate(row, 0));
+		Cell cell2 = board->get_cell(Coordinate(row, 1));
+		Cell cell3 = board->get_cell(Coordinate(row, 2));
 		if (
-			cell.isFilled() &&
+			is_row_filled(row) &&
 			cell == cell2 && 
 			cell2 == cell3
 		) {
@@ -51,25 +65,32 @@ private:
 	}
 
 	Cell get_column_winner(byte column) {
-		Cell cell = (*board).get_cell(Coordinate(0, column));
-		Cell cell2 = (*board).get_cell(Coordinate(1, column));
-		Cell cell3 = (*board).get_cell(Coordinate(2, column));
+		Cell cell = board->get_cell(Coordinate(0, column));
+		Cell cell2 = board->get_cell(Coordinate(1, column));
+		Cell cell3 = board->get_cell(Coordinate(2, column));
 		if (
-			cell.isFilled() &&
+			is_column_filled(column) &&
 			cell == cell2 && 
 			cell2 == cell3
 		) {
 			return cell;
 		}
 		return Cell();
+	}
+
+	bool is_slash_filled() {
+		Cell cell = board->get_cell(Coordinate(0, 0));
+		Cell cell2 = board->get_cell(Coordinate(1, 1));
+		Cell cell3 = board->get_cell(Coordinate(2, 2));
+		return cell.isFilled() && cell2.isFilled() && cell3.isFilled();
 	}
 
 	Cell get_slash_winner() {
-		Cell cell = (*board).get_cell(Coordinate(0, 0));
-		Cell cell2 = (*board).get_cell(Coordinate(1, 1));
-		Cell cell3 = (*board).get_cell(Coordinate(2, 2));
+		Cell cell = board->get_cell(Coordinate(0, 0));
+		Cell cell2 = board->get_cell(Coordinate(1, 1));
+		Cell cell3 = board->get_cell(Coordinate(2, 2));
 		if (
-			cell.isFilled() &&
+			is_slash_filled() &&
 			cell == cell2 && 
 			cell2 == cell3
 		) {
@@ -78,12 +99,19 @@ private:
 		return Cell();
 	}
 
+	bool is_backslash_filled() {
+		Cell cell = board->get_cell(Coordinate(0, 2));
+		Cell cell2 = board->get_cell(Coordinate(1, 1));
+		Cell cell3 = board->get_cell(Coordinate(2, 0));
+		return cell.isFilled() && cell2.isFilled() && cell3.isFilled();
+	}
+
 	Cell get_backslash_winner() {
-		Cell cell = (*board).get_cell(Coordinate(0, 2));
-		Cell cell2 = (*board).get_cell(Coordinate(1, 1));
-		Cell cell3 = (*board).get_cell(Coordinate(2, 0));
+		Cell cell = board->get_cell(Coordinate(0, 2));
+		Cell cell2 = board->get_cell(Coordinate(1, 1));
+		Cell cell3 = board->get_cell(Coordinate(2, 0));
 		if (
-			cell.isFilled() &&
+			is_backslash_filled() &&
 			cell == cell2 && 
 			cell2 == cell3
 		) {
@@ -116,7 +144,7 @@ public:
 		if (backslash_winner.isFilled()) {
 			return GameResult(backslash_winner.getDrawer());
 		}
-		if ((*board).is_board_full()) {
+		if (board->is_board_full()) {
 			return GameResult(true);
 		}
 		return GameResult(false);

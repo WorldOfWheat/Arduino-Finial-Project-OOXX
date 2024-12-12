@@ -20,8 +20,8 @@ public:
 	}
 
 	PlayerType getType() {
-		Serial.println("getType");
-		Serial.println((char) type);
+		// Serial.println("getType");
+		// Serial.println((char) type);
 		return type;
 	}
 };
