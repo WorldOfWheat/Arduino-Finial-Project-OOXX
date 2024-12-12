@@ -1,32 +1,24 @@
 @startuml
 
-class Cell {
-	-byte type
-	+Cell(byte type = 0)
-	+byte getType()
-	+void setType(byte type)
+interface ICell {
+	+Player getDrawer()
+	+void setDrawer(Player player)
 	+bool isFilled()
 }
 
-enum GameStatus {
-	WIN,
-	DRAW,
-	Playing
-}
-
-class GameResult {
-	+bool isWin
-	+bool isDraw
-	+Player winner
-	+GameResult()
-	+GameResult(bool isDraw)
-	+GameResult(bool isWin, Player winner)
+class Cell {
+	+Cell()
+	+Cell(Player drawer)
+	+Player getDrawer()
+	+void setDrawer(Player player)
+	+bool isFilled()
 }
 
 interface IBoard {
 	+void draw(Coordinate coordinate, Player currentPlayer)
 	+void erase(Coordinate coordinate)
 	+bool is_board_full()
+	+bool is_board_empty()
 	+Cell get_cell(Coordinate coordinate)
 }
 
@@ -36,23 +28,44 @@ class Board {
 	+void draw(Coordinate coordinate, Player currentPlayer)
 	+void erase(Coordinate coordinate)
 	+bool is_board_full()
+	+bool is_board_empty()
 	+Cell get_cell(Coordinate coordinate)
 }
 
 class BoardPrinter {
-	-Board board
+	-IBoard board
 	-void print_split()
 	-void print_row(int row)
-	+void print(Board board)
+	+BoardPrinter(IBoard board)
+	+void print()
+}
+
+enum GameStatus {
+	WIN,
+	DRAW,
+	Playing
+}
+
+class GameResult {
+	+GameStatus status
+	+Player winner
+	+GameResult()
+	+GameResult(bool isDraw)
+	+GameResult(Player winner)
+}
+
+interface IGameJudge {
+	+GameResult judge(Board board)
 }
 
 class GameJudge {
-	-Board board
-	-GameResult check_row_winner(byte row)
-	-GameResult check_column_winner(byte column)
-	-GameResult check_slash_winner()
-	-GameResult check_backslash_winner()
-	+GameResult judge(Board board)
+	-IBoard board
+	-Cell get_row_winner(byte row)
+	-Cell get_column_winner(byte column)
+	-Cell get_slash_winner()
+	-Cell get_backslash_winner()
+	+GameJudge(IBoard board)
+	+GameResult judge()
 }
 
 class Coordinate {
@@ -61,11 +74,16 @@ class Coordinate {
 	+Coordinate(byte x = -1, byte y = -1)
 }
 
+enum PlayerType {
+	O,
+	X
+}
+
 class Player {
-	-byte type
-	+Player(byte type)
-	+byte getType()
-	+void next()
+	-PlayerType type
+	+Player(PlayerType type)
+	+PlayerType getType()
+	+void play(Coordinate coordinate)
 }
 
 class BestMoveResult {
@@ -80,32 +98,62 @@ class BestMoveResult {
 
 class Robot {
 	-Player robot_player
-	-BestMoveResult get_best_next_move(Board board, Player current_player, int alpha, int beta)
-	-bool is_board_empty(Board board)
-	+Robot(Player player)
-	+Coordinate get_next_move(Board board)
+	-IBoard board
+	-byte difficulty
+	-bool decide_strategy()
+	+Robot(Player robot_player, IBoard board)
+	+void play()
 }
 
+interface Strategy {
+	+Coordinate get_best_move()
+}
 
+class MinimaxStrategy {
+	-Player robot_player
+	-GameJudge game_judge
+	-Player get_opponent()
+	-BestMoveResult minimax(Player player, int depth, int alpha, int beta)
+	+MinimaxStrategy(Player robot_player, IBoard board)
+	+Coordinate get_best_move()
+}
 
-Board ..|> IBoard
-Board ..> Cell
-Board ..> GameResult
-Board ..> Coordinate
-Player ..> IBoard
-Cell ..> Coordinate
+class RandomStrategy {
+	-Player robot_player
+	-IBoard board
+	+RandomStrategy(Player robot_player, IBoard board)
+	+Coordinate get_best_move()
+}
+
+Cell .down.|> ICell
+
+Board .up.> ICell
+Board .down.> Coordinate
+Board .down.> Player
+Board .right.|> IBoard
+
+BoardPrinter ..> IBoard
 
 GameResult ..> GameStatus
-
 GameJudge ..> GameResult
-GameJudge ..> Board
+GameJudge ..|> IGameJudge
+GameJudge .up.> IBoard
 
-BoardPrinter ..> Board
+Player ..> PlayerType
 
-Robot ..> BestMoveResult
-Robot ..> Player
+BestMoveResult .down.> Coordinate
 
-BestMoveResult ..> Coordinate
-GameResult ..> Player
+MinimaxStrategy ..|> Strategy
+MinimaxStrategy .down.> BestMoveResult
+MinimaxStrategy .left.> IBoard
+MinimaxStrategy .up.> Player
+
+RandomStrategy ..|> Strategy
+RandomStrategy .left.> IBoard
+RandomStrategy ..> Player
+
+Robot .left.> IBoard
+Robot --> Strategy
+Robot .right.> Player
 
 @enduml
