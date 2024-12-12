@@ -60,9 +60,13 @@ interface IGameJudge {
 
 class GameJudge {
 	-IBoard board
+	-bool is_row_filled(byte row)
 	-Cell get_row_winner(byte row)
+	-bool is_column_filled(byte column)
 	-Cell get_column_winner(byte column)
+	-bool is_slash_filled()
 	-Cell get_slash_winner()
+	-bool is_backslash_filled()
 	-Cell get_backslash_winner()
 	+GameJudge(IBoard board)
 	+GameResult judge()
