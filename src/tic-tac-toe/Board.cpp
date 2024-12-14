@@ -9,6 +9,7 @@ public:
 	virtual Player getDrawer() = 0;
 	virtual void setDrawer(Player drawer) = 0;
 	virtual bool isFilled() = 0;
+	virtual void reset() = 0;
 };
 
 class Cell : public ICell {
@@ -37,6 +38,11 @@ public:
 		return is_filled;
 	}
 
+	void reset() {
+		is_filled = false;
+		drawer = Player(PlayerType::O);
+	}
+
 	bool operator == (const Cell& compare_cell) {
 		return drawer == compare_cell.drawer;
 	}
@@ -49,6 +55,7 @@ public:
 	virtual bool is_board_full() = 0;
 	virtual bool is_board_empty() = 0;
 	virtual Cell get_cell(Coordinate coordinate) = 0;
+	virtual void reset() = 0;
 };
 
 class Board : public IBoard {
@@ -73,7 +80,7 @@ public:
 	void erase(Coordinate coordinate) {
 		int x = coordinate.x;
 		int y = coordinate.y;
-		cells[x][y] = Cell();
+		cells[x][y].reset();
 	}
 
 	bool is_board_full() {
@@ -100,6 +107,14 @@ public:
 
 	Cell get_cell(Coordinate coordinate) {
 		return cells[coordinate.x][coordinate.y];
+	}
+
+	void reset() {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				cells[i][j].reset();
+			}
+		}
 	}
 };
 

@@ -1,0 +1,51 @@
+@startuml state
+
+state "Welcome" as welcome {
+}	
+
+state "Settings" as settings {
+}
+
+state "Game" as game {
+	state useBot <<choice>>
+	state botTurn <<choice>>
+
+	state "Initiate" as initiate {
+	}
+
+	state "Player 1" as player1 {
+		Choose --> 	Preview : 預覽
+		Preview --> Confirm : 確認
+	}
+
+	state "Player 2" as player2 {
+		Choose2 --> Preview2 : 預覽
+		Preview2 --> Confirm2 : 確認
+	}
+
+	state "Robot" as robot {
+	}
+	
+	initiate --> useBot : 初始化完成
+	useBot --> player1 : 不使用機器人
+
+	player1 --> player2 : 切換玩家
+	player2 --> player1 : 切換玩家
+
+	state "Player Human" as player_human {
+		Choose3 --> Preview3 : 預覽
+		Preview3 --> Confirm3 : 確認
+	}
+
+	useBot --> botTurn : 使用機器人
+	botTurn --> player_human : 不輪到機器人
+	botTurn --> robot : 輪到機器人
+	player_human --> robot : 機器人回合
+	robot --> player_human : 玩家回合
+}
+
+[*] --> welcome : 開始
+welcome --> settings : 按下設定
+welcome --> game : 開始遊戲
+
+@enduml

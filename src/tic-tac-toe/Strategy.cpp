@@ -71,14 +71,14 @@ private:
 				}
 
 				if (current_player.getType() == robot_player.getType()) {
-					if (next_move.value > maximum_value) {
+					if (next_move.value > maximum_value || (next_move.value == maximum_value && random(2))) {
 						best_coordinate = Coordinate(i, j);
 						maximum_value = next_move.value;
 						alpha = maximum_value;
 					}
 				}
 				else {
-					if (next_move.value < minimum_value) {
+					if (next_move.value < minimum_value || (next_move.value == maximum_value && random(2))) {
 						best_coordinate = Coordinate(i, j);
 						minimum_value = next_move.value;
 						beta = minimum_value;
@@ -100,6 +100,9 @@ public:
 	{}
 
 	Coordinate get_best_move() {
+		if (board->is_board_empty()) {
+			return Coordinate(1, 1);
+		}
 		BestMoveResult best_move = minimax(this->robot_player, -1e9, 1e9);
 		return best_move.coordinate;
 	}
