@@ -11,30 +11,30 @@ ISettingsManager* settings_manager = new SettingsManager();
 IKeyInput* key_input = new KeyPad();
 IBoard* board = new Board();
 GameJudge* judge = new GameJudge(board);
-OLED display = OLED(board);
+IDisplay* display = new OLED(board);
 BoardPrinter printer = BoardPrinter(board);
 
 void setup() {
 	Serial.begin(115200);
 	Serial.println("Start");
-	display.showWelcome();
+	display->showWelcome();
 }
 
 byte state = 1;
 
 void updateDifficulty() {
 	byte difficulty = settings_manager->getDifficulty();
-	display.showDifficulty(difficulty);
+	display->showDifficulty(difficulty);
 }
 
 void updateTurn() {
 	bool turn = settings_manager->getTurn();
-	display.showTurn(turn);
+	display->showTurn(turn);
 }
 
 void updateUseBot() {
 	bool use_bot = settings_manager->getUseBot();
-	display.showIfUseBot(use_bot);
+	display->showIfUseBot(use_bot);
 }
 
 Coordinate get_coordinate_by_key(char key) {
@@ -104,7 +104,7 @@ void loop() {
 	switch (state) {
 		// Welcome
 		case 1: {
-			display.showWelcome();
+			display->showWelcome();
 			if (key == '1') {
 				initialize();
 				if (use_bot) {
@@ -124,7 +124,7 @@ void loop() {
 		}
 
 		case 20: {
-			display.showBoard();
+			display->showBoard();
 
 			if (key == '\0') {
 				break;
@@ -147,7 +147,7 @@ void loop() {
 		
 		case 21: {
 			board->draw(selected, *human);
-			display.showBoard();
+			display->showBoard();
 			delay(100);
 
 			if (key == selected_key) {
@@ -156,7 +156,7 @@ void loop() {
 			}
 
 			board->erase(selected);
-			display.showBoard();
+			display->showBoard();
 			delay(100);
 
 			if (key != '\0') {
@@ -170,14 +170,14 @@ void loop() {
 			GameResult result = judge->judge();
 
 			if (result.status == GameStatus::WIN) {
-				display.showWinner(human->getType());
+				display->showWinner(human->getType());
 				delay(1000);
 				state = 1;
 				break;
 			}
 
 			if (result.status == GameStatus::DRAW) {
-				display.showDraw();
+				display->showDraw();
 				delay(1000);
 				state = 1;
 				break;
@@ -189,7 +189,7 @@ void loop() {
 			
 		case 23: {
 			robot->play();
-			display.showBoard();
+			display->showBoard();
 			state = 24;
 			break;
 		}
@@ -199,7 +199,7 @@ void loop() {
 
 			if (result.status == GameStatus::WIN) {
 				delay(500);
-				display.showWinner(get_oppenent(human->getType())->getType());
+				display->showWinner(get_oppenent(human->getType())->getType());
 				delay(1000);
 				state = 1;
 				break;
@@ -207,7 +207,7 @@ void loop() {
 
 			if (result.status == GameStatus::DRAW) {
 				delay(500);
-				display.showDraw();
+				display->showDraw();
 				delay(1000);
 				state = 1;
 				break;
@@ -219,7 +219,7 @@ void loop() {
 
 		// Human vs Human
 		case 30: {
-			display.showBoard();
+			display->showBoard();
 
 			if (key == '\0') {
 				break;
@@ -242,7 +242,7 @@ void loop() {
 
 		case 31: {
 			board->draw(selected, *human);
-			display.showBoard();
+			display->showBoard();
 			delay(100);
 
 			if (key == selected_key) {
@@ -251,7 +251,7 @@ void loop() {
 			}
 
 			board->erase(selected);
-			display.showBoard();
+			display->showBoard();
 			delay(100);
 
 			if (key != '\0') {
@@ -266,7 +266,7 @@ void loop() {
 
 			if (result.status == GameStatus::WIN) {
 				delay(500);
-				display.showWinner(human->getType());
+				display->showWinner(human->getType());
 				delay(1000);
 				state = 1;
 				break;
@@ -274,7 +274,7 @@ void loop() {
 
 			if (result.status == GameStatus::DRAW) {
 				delay(500);
-				display.showDraw();
+				display->showDraw();
 				delay(1000);
 				state = 1;
 				break;
@@ -292,7 +292,7 @@ void loop() {
 
 		// Settings
 		case 10: {
-			display.showSettings();
+			display->showSettings();
 			if (key == '1') {
 				state = 11;
 				break;
@@ -369,7 +369,7 @@ void loop() {
 		}
 
 		default:
-			display.showError();
+			display->showError();
 			break;
 	}
 }

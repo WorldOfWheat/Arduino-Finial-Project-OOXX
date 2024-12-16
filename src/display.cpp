@@ -1,5 +1,5 @@
-#ifndef OLED_H
-#define OLED_H
+#ifndef DISPLAY_H
+#define DISPLAY_H
 
 #include "./tic-tac-toe/Board.cpp"
 #include <Arduino.h>
@@ -9,10 +9,155 @@
 
 class IDisplay {
 public:
-	virtual void showPage(byte page) = 0;
+	virtual void showWelcome() = 0;
+	virtual void showBoard() = 0;
+	virtual void showGameOver() = 0;
+	virtual void showSettings() = 0;
+	virtual void showDifficulty(byte difficulty) = 0;
+	virtual void showTurn(bool turn) = 0;
+	virtual void showIfUseBot(bool use) = 0;
+	virtual void showDraw() = 0;
+	virtual void showWinner(PlayerType type) = 0;
+	virtual void showError() = 0;
 };
 
-class OLED {
+class SerialDisplay : public IDisplay {
+private:
+	IBoard* board;
+
+	void printRow(byte row) {
+		for (byte i = 0; i < 3; i++) {
+			Cell cell = board->get_cell(Coordinate(row, i));
+			if (cell.isFilled()) {
+				Serial.print((char) board->get_cell(Coordinate(row, i)).getDrawer().getType());
+			}
+			else {
+				Serial.print(" ");
+			}
+			if (i < 2) {
+				Serial.print("|");
+			}
+		}
+		Serial.println("");
+	}
+
+	void printBoardSpliter() {
+		Serial.println("-+-+-");
+	}
+
+	void printBoard() {
+		for (byte i = 0; i < 3; i++) {
+			printRow(i);
+			if (i < 2) {
+				printBoardSpliter();
+			}
+		}
+	}
+
+	void printDifficultyString(byte difficulty) {
+		switch (difficulty) {
+			case 1:
+				Serial.print("1: Easy");
+				break;
+			case 2:
+				Serial.print("2: Medium");
+				break;
+			case 3:
+				Serial.print("3: Hard");
+				break;
+			case 4:
+				Serial.print("4: Impossible");
+				break;
+		}
+	}
+
+public:
+	SerialDisplay(IBoard* board) {
+		this->board = board;
+	}
+
+	void showWelcome() {
+		Serial.println("Welcome");
+		Serial.println("");
+		Serial.println("Press 1 to start");
+	}
+
+	void showBoard() {
+		printBoard();
+	}
+
+	void showGameOver() {
+		Serial.println("Game Over");
+	}
+
+	void showSettings() {
+		Serial.println("Settings");
+		Serial.println("1: Difficulty");
+		Serial.println("2: Turn");
+		Serial.println("3: Use Bot");
+		Serial.println("");
+		Serial.println("9: Back");
+	}
+
+	void showDifficulty(byte difficulty) {
+		Serial.println("Difficulty");
+		// add star to the selected difficulty
+		for (byte i = 1; i <= 4; i++) {
+			if (i == difficulty) {
+				Serial.print("*");
+			}
+			printDifficultyString(i);
+			Serial.println("");
+		}
+		Serial.println("");
+		Serial.println("9: Back");
+	}
+
+	void showTurn(bool turn) {
+		Serial.println("Turn");
+		// add star to the selected turn
+		if (turn) {
+			Serial.print("*");
+		}
+		Serial.println("1: O");
+		if (!turn) {
+			Serial.print("*");
+		}
+		Serial.println("2: X");
+		Serial.println("");
+		Serial.println("9: Back");
+	}
+
+	void showIfUseBot(bool use) {
+		Serial.println("Use Bot");
+		if (use) {
+			Serial.print("*");
+		}
+		Serial.println("1: Yes");
+		if (!use) {
+			Serial.print("*");
+		}
+		Serial.println("2: No");
+		Serial.println("");
+		Serial.println("9: Back");
+	}
+
+	void showDraw() {
+		Serial.println("Draw");
+	}
+
+	void showWinner(PlayerType type) {
+		Serial.print((char) type);
+		Serial.println(" Wins");
+	}
+
+	void showError() {
+		Serial.println("Error");
+		Serial.println("Please click reset button");
+	}
+};
+
+class OLED : public IDisplay {
 private:
 	Adafruit_SSD1306* display;
 	byte width = 128;
