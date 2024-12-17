@@ -25,11 +25,6 @@ interface IBoard {
 class Board {
 	-Cell cells[3][3]
 	+Board()
-	+void draw(Coordinate coordinate, Player currentPlayer)
-	+void erase(Coordinate coordinate)
-	+bool is_board_full()
-	+bool is_board_empty()
-	+Cell get_cell(Coordinate coordinate)
 }
 
 class BoardPrinter {
@@ -69,7 +64,6 @@ class GameJudge {
 	-bool is_backslash_filled()
 	-Cell get_backslash_winner()
 	+GameJudge(IBoard board)
-	+GameResult judge()
 }
 
 class Coordinate {
@@ -119,14 +113,59 @@ class MinimaxStrategy {
 	-Player get_opponent()
 	-BestMoveResult minimax(Player player, int depth, int alpha, int beta)
 	+MinimaxStrategy(Player robot_player, IBoard board)
-	+Coordinate get_best_move()
 }
 
 class RandomStrategy {
 	-Player robot_player
 	-IBoard board
 	+RandomStrategy(Player robot_player, IBoard board)
-	+Coordinate get_best_move()
+}
+
+interface IDisplay {
+	+void showWelcome()
+	+void showBoard()
+	+void showGameOver()
+	+void showSettings()
+	+void showDifficulty(byte difficulty)
+	+void showTurn(bool turn)
+	+void showIfUseBot(bool use)
+	+void showDraw()
+	+void showWinner(PlayerType type)
+	+void showError()
+}
+
+class SerialDisplay {
+	-IBoard board
+	-void printRow(byte row)
+	-void printBoardSpliter()
+	-void printBoard()
+	-void printDifficultyString(byte difficulty)
+	+SerialDisplay(IBoard* board)
+}
+
+class OLED {
+	-Adafruit_SSD1306 display
+	-byte width
+	-byte height
+	-void printRow(byte row)
+	-void printBoardSpliter()
+	-void printBoard()
+	-void printDifficultyString(byte difficulty)
+}
+
+interface IKeyInput {
+	+char get_key()
+}
+
+class Keyboard {
+	+char Keyboard()
+	+char get_key()
+}
+
+class KeyPad {
+	-char prev_key
+	+char KeyPad()
+	+char get_key()
 }
 
 Cell .down.|> ICell
@@ -134,7 +173,7 @@ Cell .down.|> ICell
 Board .up.> ICell
 Board .down.> Coordinate
 Board .down.> Player
-Board .right.|> IBoard
+Board .left.|> IBoard
 
 BoardPrinter ..> IBoard
 
@@ -143,21 +182,31 @@ GameJudge ..> GameResult
 GameJudge ..|> IGameJudge
 GameJudge .up.> IBoard
 
-Player ..> PlayerType
+Player .right.> PlayerType
 
 BestMoveResult .down.> Coordinate
 
-MinimaxStrategy ..|> Strategy
+MinimaxStrategy .right.|> Strategy
 MinimaxStrategy .down.> BestMoveResult
 MinimaxStrategy .left.> IBoard
 MinimaxStrategy .up.> Player
 
 RandomStrategy ..|> Strategy
 RandomStrategy .left.> IBoard
-RandomStrategy ..> Player
+RandomStrategy .left.> Player
 
 Robot .left.> IBoard
 Robot --> Strategy
 Robot .right.> Player
+
+SerialDisplay .left.|> IDisplay
+SerialDisplay .down.> IBoard
+SerialDisplay .up.> PlayerType
+OLED .right.|> IDisplay
+OLED .down.> IBoard
+OLED .up.> PlayerType
+
+Keyboard .up.|> IKeyInput
+KeyPad .up.|> IKeyInput
 
 @enduml
