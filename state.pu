@@ -25,24 +25,91 @@ state "Settings" as settings {
 	selection --> [*] : 返回
 }
 
-	player1 --> player2 : 切換玩家
-	player2 --> player1 : 切換玩家
-
-	state "Player Human" as player_human {
-		Choose3 --> Preview3 : 預覽
-		Preview3 --> Confirm3 : 確認
+state "Human Game" as human_game {
+	state "O Win" as o_win {
+		o_win : O 獲勝
+		o_win --> human_game : 等待一秒
 	}
 
-	useBot --> botTurn : 使用機器人
-	botTurn --> player_human : 不輪到機器人
-	botTurn --> robot : 輪到機器人
-	player_human --> robot : 機器人回合
-	robot --> player_human : 玩家回合
+	state "X Win" as x_win {
+		x_win : X 獲勝
+		x_win --> human_game : 等待一秒
+	}
+
+	state "Player O" as Player_1 {
+		Player_1 : O
+		state "Select" as player_1_select 
+		state "Preview" as player_1_preview 
+		player_1_select --> player_1_preview : 預覽
+		state player_1_confirm <<choice>> 
+		state player_1_judge <<choice>>
+		player_1_preview --> player_1_confirm : 確認
+		player_1_confirm --> player_1_judge : 判斷是否獲勝
+		player_1_judge --> o_win : O 獲勝
+		player_1_judge --> [*] : 繼續
+		player_1_confirm --> player_1_select : 取消
+	}
+
+	state "Player X" as Player_2 {
+		Player_2 : X
+		state "Select" as player_2_select 
+		state "Preview" as player_2_preview 
+		player_2_select --> player_2_preview : 預覽
+		state player_2_confirm <<choice>> 
+		state player_2_judge <<choice>>
+		player_2_preview --> player_2_confirm : 確認
+		player_2_confirm --> player_2_judge : 判斷是否獲勝
+		player_2_judge --> x_win : X 獲勝
+		player_2_judge --> [*] : 繼續
+		player_2_confirm --> player_2_select : 取消
+	}
+
 }
+
+state "Robot Game" as robot_game {
+	state "Human Win" as human_win {
+		human_win : 人類獲勝
+		human_win --> robot_game : 等待一秒
+	}
+
+	state "Robot Win" as robot_win {
+		robot_win : 機器人獲勝
+		robot_win --> robot_game : 等待一秒
+	}
+
+	state Human {
+		Human : 人類
+		Select --> Preview : 預覽
+		state confirm <<choice>> 
+		state judge <<choice>> 
+		Preview --> confirm : 確認
+		confirm --> judge : 判斷是否獲勝
+		judge --> human_win : 人類獲勝
+		judge --> [*] : 繼續
+		confirm --> Select : 取消
+	}
+
+	state Robot {
+		Robot : 機器人
+		state judge_robot <<choice>> 
+		Place --> judge_robot : 判斷是否獲勝
+		judge_robot --> robot_win : 機器人獲勝
+		judge_robot --> [*] : 繼續
+	}
+
+	state bot_first <<choice>>
+	[*] --> bot_first : 開始
+	bot_first --> Human : 人類先手
+	bot_first --> Robot : 機器人先手
+	Human -right-> Robot : 輪到機器人
+	Robot -up-> Human : 輪到人類
+}
+
 
 [*] --> welcome : 開始
 welcome --> settings : 按下設定
-welcome --> game : 開始遊戲
+welcome --> robot_game : 開始機器人遊戲
+welcome --> human_game : 開始人類遊戲
 settings --> welcome : 設定完成
 
 @enduml
