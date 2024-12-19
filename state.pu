@@ -4,30 +4,26 @@ state "Welcome" as welcome {
 }	
 
 state "Settings" as settings {
+	state selection <<choice>>
+	state "Difficulty" as difficulty {
+		difficulty: 難度選擇
+	}
+	state "Turn" as turn {
+		turn: 回合選擇
+	}
+	state "Use Bot" as use_bot {
+		use_bot: 使用機器人
+	}
+
+	[*] --> selection : 開始
+	selection --> difficulty : 按下難度選擇
+	selection --> turn : 按下回合選擇
+	selection --> use_bot : 按下機器人選擇
+	difficulty --> settings : 返回
+	turn --> settings : 返回
+	use_bot --> settings : 返回
+	selection --> [*] : 返回
 }
-
-state "Game" as game {
-	state useBot <<choice>>
-	state botTurn <<choice>>
-
-	state "Initiate" as initiate {
-	}
-
-	state "Player 1" as player1 {
-		Choose --> 	Preview : 預覽
-		Preview --> Confirm : 確認
-	}
-
-	state "Player 2" as player2 {
-		Choose2 --> Preview2 : 預覽
-		Preview2 --> Confirm2 : 確認
-	}
-
-	state "Robot" as robot {
-	}
-	
-	initiate --> useBot : 初始化完成
-	useBot --> player1 : 不使用機器人
 
 	player1 --> player2 : 切換玩家
 	player2 --> player1 : 切換玩家
@@ -47,5 +43,6 @@ state "Game" as game {
 [*] --> welcome : 開始
 welcome --> settings : 按下設定
 welcome --> game : 開始遊戲
+settings --> welcome : 設定完成
 
 @enduml
