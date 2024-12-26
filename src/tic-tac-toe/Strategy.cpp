@@ -52,8 +52,8 @@ private:
 			return BestMoveResult(-1);
 		}
 		
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < board->get_row_size(); i++) {
+			for (int j = 0; j < board->get_col_size(); j++) {
 				Coordinate coordinate = Coordinate(i, j);
 				if (board->get_cell(coordinate).isFilled()) {
 					continue;
@@ -119,7 +119,7 @@ public:
 	Coordinate get_best_move() {
 		Coordinate coordinate;
 		do {
-			coordinate = Coordinate(random(3), random(3));
+			coordinate = Coordinate(random(board->get_row_size()), random(board->get_col_size()));
 		} while ((*board).get_cell(coordinate).isFilled());
 		return coordinate;
 	}

@@ -46,6 +46,10 @@ public:
 	bool operator == (const Cell& compare_cell) {
 		return drawer == compare_cell.drawer;
 	}
+
+	bool operator != (const Cell& compare_cell) {
+		return drawer != compare_cell.drawer;
+	}
 };
 
 class IBoard {
@@ -55,17 +59,21 @@ public:
 	virtual bool is_board_full() = 0;
 	virtual bool is_board_empty() = 0;
 	virtual Cell get_cell(Coordinate coordinate) = 0;
+	virtual byte get_row_size() = 0;
+	virtual byte get_col_size() = 0;
 	virtual void reset() = 0;
 };
 
 class Board : public IBoard {
 private:
-	Cell cells[3][3];
+	const byte row_size = 4;
+	const byte col_size = 4;
+	Cell cells[4][4];
 
 public:
 	Board() {
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < row_size; i++) {
+			for (int j = 0; j < col_size; j++) {
 				cells[i][j] = Cell();
 			}
 		}
@@ -84,8 +92,8 @@ public:
 	}
 
 	bool is_board_full() {
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < row_size; i++) {
+			for (int j = 0; j < col_size; j++) {
 				if (!cells[i][j].isFilled()) {
 					return false;
 				}
@@ -95,8 +103,8 @@ public:
 	}
 
 	bool is_board_empty() {
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < row_size; i++) {
+			for (int j = 0; j < col_size; j++) {
 				if (cells[i][j].isFilled()) {
 					return false;
 				}
@@ -110,11 +118,19 @@ public:
 	}
 
 	void reset() {
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
+		for (int i = 0; i < row_size; i++) {
+			for (int j = 0; j < col_size; j++) {
 				cells[i][j].reset();
 			}
 		}
+	}
+
+	byte get_row_size() {
+		return row_size;
+	}
+
+	byte get_col_size() {
+		return col_size;
 	}
 };
 
@@ -125,8 +141,8 @@ private:
 		Serial.println("-+-+-");
 	}
 
-	void print_row(int row) {
-		for (int i = 0; i < 3; i++) {
+	void print_row(byte row) {
+		for (int i = 0; i < board->get_col_size(); i++) {
 			Cell cell = board->get_cell(Coordinate(row, i));
 			if (cell.isFilled()) {
 				Serial.print((char) cell.getDrawer().getType());
@@ -147,7 +163,7 @@ public:
 	}
 	void print() {
 		print_split();
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < board->get_row_size(); i++) {
 			print_row(i);
 			print_split();
 		}

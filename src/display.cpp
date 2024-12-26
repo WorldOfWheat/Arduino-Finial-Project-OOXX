@@ -26,7 +26,7 @@ private:
 	IBoard* board;
 
 	void printRow(byte row) {
-		for (byte i = 0; i < 3; i++) {
+		for (byte i = 0; i < board->get_col_size(); i++) {
 			Cell cell = board->get_cell(Coordinate(row, i));
 			if (cell.isFilled()) {
 				Serial.print((char) board->get_cell(Coordinate(row, i)).getDrawer().getType());
@@ -46,7 +46,7 @@ private:
 	}
 
 	void printBoard() {
-		for (byte i = 0; i < 3; i++) {
+		for (byte i = 0; i < board->get_row_size(); i++) {
 			printRow(i);
 			if (i < 2) {
 				printBoardSpliter();
@@ -166,7 +166,7 @@ private:
 	IBoard* board;
 
 	void printRow(byte row) {
-		for (byte i = 0; i < 3; i++) {
+		for (byte i = 0; i < board->get_col_size(); i++) {
 			Cell cell = board->get_cell(Coordinate(row, i));
 			if (cell.isFilled()) {
 				display->print((char) board->get_cell(Coordinate(row, i)).getDrawer().getType());
@@ -186,7 +186,7 @@ private:
 	}
 
 	void printBoard() {
-		for (byte i = 0; i < 3; i++) {
+		for (byte i = 0; i < board->get_row_size(); i++) {
 			printRow(i);
 			if (i < 2) {
 				printBoardSpliter();

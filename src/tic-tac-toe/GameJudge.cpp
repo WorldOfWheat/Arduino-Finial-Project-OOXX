@@ -37,87 +37,98 @@ private:
 	IBoard* board;
 
 	bool is_row_filled(byte row) {
-		Cell cell = board->get_cell(Coordinate(row, 0));
-		Cell cell2 = board->get_cell(Coordinate(row, 1));
-		Cell cell3 = board->get_cell(Coordinate(row, 2));
-		return cell.isFilled() && cell2.isFilled() && cell3.isFilled();
+		for (int i = 0; i < board->get_col_size(); i++) {
+			Cell cell = board->get_cell(Coordinate(row, i));
+			if (!cell.isFilled()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	bool is_column_filled(byte column) {
-		Cell cell = board->get_cell(Coordinate(0, column));
-		Cell cell2 = board->get_cell(Coordinate(1, column));
-		Cell cell3 = board->get_cell(Coordinate(2, column));
-		return cell.isFilled() && cell2.isFilled() && cell3.isFilled();
+		for (int i = 0; i < board->get_row_size(); i++) {
+			Cell cell = board->get_cell(Coordinate(i, column));
+			if (!cell.isFilled()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	Cell get_row_winner(byte row) {
-		Cell cell = board->get_cell(Coordinate(row, 0));
-		Cell cell2 = board->get_cell(Coordinate(row, 1));
-		Cell cell3 = board->get_cell(Coordinate(row, 2));
-		if (
-			is_row_filled(row) &&
-			cell == cell2 && 
-			cell2 == cell3
-		) {
-			return cell;
+		if (!is_row_filled(row)) {
+			return Cell();
 		}
-		return Cell();
+		for (int i = 0; i < board->get_row_size() - 1; i++) {
+			Cell cell = board->get_cell(Coordinate(row, i));
+			Cell cell2 = board->get_cell(Coordinate(row, i + 1));
+			if (cell != cell2) {
+				return Cell();
+			}
+		}
+		return board->get_cell(Coordinate(row, 0));
 	}
 
 	Cell get_column_winner(byte column) {
-		Cell cell = board->get_cell(Coordinate(0, column));
-		Cell cell2 = board->get_cell(Coordinate(1, column));
-		Cell cell3 = board->get_cell(Coordinate(2, column));
-		if (
-			is_column_filled(column) &&
-			cell == cell2 && 
-			cell2 == cell3
-		) {
-			return cell;
+		if (!is_column_filled(column)) {
+			return Cell();
 		}
-		return Cell();
+		for (int i = 0; i < board->get_col_size() - 1; i++) {
+			Cell cell = board->get_cell(Coordinate(i, column));
+			Cell cell2 = board->get_cell(Coordinate(i + 1, column));
+			if (cell != cell2) {
+				return Cell();
+			}
+		}
+		return board->get_cell(Coordinate(0, column));
 	}
 
 	bool is_slash_filled() {
-		Cell cell = board->get_cell(Coordinate(0, 0));
-		Cell cell2 = board->get_cell(Coordinate(1, 1));
-		Cell cell3 = board->get_cell(Coordinate(2, 2));
-		return cell.isFilled() && cell2.isFilled() && cell3.isFilled();
+		for (int i = 0; i < board->get_row_size(); i++) {
+			Cell cell = board->get_cell(Coordinate(i, i));
+			if (!cell.isFilled()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	Cell get_slash_winner() {
-		Cell cell = board->get_cell(Coordinate(0, 0));
-		Cell cell2 = board->get_cell(Coordinate(1, 1));
-		Cell cell3 = board->get_cell(Coordinate(2, 2));
-		if (
-			is_slash_filled() &&
-			cell == cell2 && 
-			cell2 == cell3
-		) {
-			return cell;
+		if (!is_slash_filled()) {
+			return Cell();
 		}
-		return Cell();
+		for (int i = 0; i < board->get_row_size() - 1; i++) {
+			Cell cell = board->get_cell(Coordinate(i, i));
+			Cell cell2 = board->get_cell(Coordinate(i + 1, i + 1));
+			if (cell != cell2) {
+				return Cell();
+			}
+		}
+		return board->get_cell(Coordinate(0, 0));
 	}
 
 	bool is_backslash_filled() {
-		Cell cell = board->get_cell(Coordinate(0, 2));
-		Cell cell2 = board->get_cell(Coordinate(1, 1));
-		Cell cell3 = board->get_cell(Coordinate(2, 0));
-		return cell.isFilled() && cell2.isFilled() && cell3.isFilled();
+		for (int i = 0; i < board->get_row_size(); i++) {
+			Cell cell = board->get_cell(Coordinate(i, 2 - i));
+			if (!cell.isFilled()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	Cell get_backslash_winner() {
-		Cell cell = board->get_cell(Coordinate(0, 2));
-		Cell cell2 = board->get_cell(Coordinate(1, 1));
-		Cell cell3 = board->get_cell(Coordinate(2, 0));
-		if (
-			is_backslash_filled() &&
-			cell == cell2 && 
-			cell2 == cell3
-		) {
-			return cell;
+		if (!is_backslash_filled()) {
+			return Cell();
 		}
-		return Cell();
+		for (int i = 0; i < board->get_row_size() - 1; i++) {
+			Cell cell = board->get_cell(Coordinate(i, 2 - i));
+			Cell cell2 = board->get_cell(Coordinate(i + 1, 1 - i));
+			if (cell != cell2) {
+				return Cell();
+			}
+		}
 	}
 
 public:
@@ -126,7 +137,7 @@ public:
 	}
 
 	GameResult judge() {
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < board->get_row_size(); i++) {
 			Cell row_winner = get_row_winner(i);
 			Cell column_winner = get_column_winner(i);
 			if (row_winner.isFilled()) {

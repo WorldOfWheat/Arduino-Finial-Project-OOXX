@@ -19,6 +19,10 @@ public:
 		return type == compare_player.type;
 	}
 
+	bool operator != (const Player& compare_player) {
+		return type != compare_player.type;
+	}
+
 	PlayerType getType() {
 		// Serial.println("getType");
 		// Serial.println((char) type);
