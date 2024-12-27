@@ -174,7 +174,7 @@ private:
 			else {
 				display->print(" ");
 			}
-			if (i < 2) {
+			if (i < board->get_col_size() - 1) {
 				display->print("|");
 			}
 		}
@@ -182,13 +182,19 @@ private:
 	}
 
 	void printBoardSpliter() {
-		display->println("-+-+-");
+		for (byte i = 0; i < board->get_col_size(); i++) {
+			display->print("-");
+			if (i < board->get_col_size() - 1) {
+				display->print("+");
+			}
+		}
+		display->println("");
 	}
 
 	void printBoard() {
 		for (byte i = 0; i < board->get_row_size(); i++) {
 			printRow(i);
-			if (i < 2) {
+			if (i < board->get_row_size() - 1) {
 				printBoardSpliter();
 			}
 		}
@@ -215,7 +221,7 @@ public:
 	OLED(IBoard* board) {
 		this->board = board;
 		display = new Adafruit_SSD1306(128, 64, &Wire, -1);
-		display->begin(SSD1306_SWITCHCAPVCC, 0x3C);
+		display->begin(SSD1306_SWITCHCAPVCC, 0x3c);
 		display->setTextColor(WHITE);
 		display->setTextSize(1);
 	}
@@ -231,7 +237,7 @@ public:
 
 	void showBoard() {
 		display->clearDisplay();
-		display->setCursor(0, 20);
+		display->setCursor(0, 0);
 		printBoard();
 		display->setCursor(width / 2, 20);
 		display->display();
