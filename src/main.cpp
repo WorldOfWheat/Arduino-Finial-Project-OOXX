@@ -7,20 +7,32 @@
 #include "./settings.cpp"
 #include "./display.cpp"
 
-ISettingsManager* settings_manager = new SettingsManager();
-IKeyInput* key_input = new KeyPad();
-IBoard* board = new Board();
-GameJudge* judge = new GameJudge(board);
-IDisplay* display = new OLED(board);
-BoardPrinter printer = BoardPrinter(board);
+ISettingsManager* settings_manager;
+IKeyInput* key_input;
+IBoard* board;
+GameJudge* judge;
+IDisplay* display;
+
+char selected_key;
+Coordinate selected;
+Player* human;
+bool use_bot;
+Robot* robot;
 
 void setup() {
 	Serial.begin(115200);
 	Serial.println("Start");
+
+	settings_manager = new SettingsManager();
+	key_input = new KeyPad();
+	board = new Board();
+	judge = new GameJudge(board);
+	display = new OLED(board);
+	use_bot = settings_manager->getUseBot();
+
 	display->showWelcome();
 }
 
-byte state = 1;
 
 void updateDifficulty() {
 	byte difficulty = settings_manager->getDifficulty();
@@ -91,12 +103,6 @@ Player* get_oppenent(Player player) {
 	return new Player(PlayerType::O);
 }
 
-char selected_key;
-Coordinate selected;
-Player* human;
-bool use_bot = settings_manager->getUseBot();
-Robot* robot;
-
 void initialize() {
 	board->reset();
 	human = get_player();
@@ -108,11 +114,10 @@ void initialize() {
 	}
 }
 
+byte state = 1;
+
 void loop() {
 	char key = key_input->get_key();
-	if (key != '\0') {
-		Serial.println("Pressed: " + key);
-	}
 
 	Serial.println("State: " + String(state));
 	switch (state) {

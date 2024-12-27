@@ -60,9 +60,9 @@ private:
 		if (!is_row_filled(row)) {
 			return Cell();
 		}
-		for (int i = 0; i < board->get_row_size() - 1; i++) {
+		for (int i = 1; i < board->get_row_size(); i++) {
 			Cell cell = board->get_cell(Coordinate(row, i));
-			Cell cell2 = board->get_cell(Coordinate(row, i + 1));
+			Cell cell2 = board->get_cell(Coordinate(row, i - 1));
 			if (cell != cell2) {
 				return Cell();
 			}
@@ -122,13 +122,14 @@ private:
 		if (!is_backslash_filled()) {
 			return Cell();
 		}
-		for (int i = 0; i < board->get_row_size() - 1; i++) {
-			Cell cell = board->get_cell(Coordinate(i, 2 - i));
-			Cell cell2 = board->get_cell(Coordinate(i + 1, 1 - i));
+		for (int i = 0; i < board->get_row_size(); i++) {
+			Cell cell = board->get_cell(Coordinate(i, board->get_col_size() - 1 - i));
+			Cell cell2 = board->get_cell(Coordinate(i + 1, board->get_col_size() - 2 - i));
 			if (cell != cell2) {
 				return Cell();
 			}
 		}
+		return board->get_cell(Coordinate(0, board->get_col_size() - 1));
 	}
 
 public:
