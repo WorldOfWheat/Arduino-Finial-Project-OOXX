@@ -12,9 +12,15 @@ public:
 };
 
 class SettingsManager : public ISettingsManager {
+private:
+	const byte EEPROM_SIZE = 4;
+
 public:
 	SettingsManager() {
-		EEPROM.begin(512);
+		EEPROM.begin(EEPROM_SIZE);
+		for (int i = 0; i < EEPROM_SIZE; i++) {
+			EEPROM.write(i, 0);
+		}
 	}
 
 	void setDifficulty(byte difficulty) {
@@ -23,6 +29,9 @@ public:
 	}
 
 	byte getDifficulty() {
+		if (EEPROM.read(0) == 0) {
+			setDifficulty(3);
+		}
 		return EEPROM.read(0);
 	}
 
