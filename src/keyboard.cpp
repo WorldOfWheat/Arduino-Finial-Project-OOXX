@@ -15,9 +15,12 @@ public:
 	}
 
 	char get_key() {
-		char key = ' ';
+		char key = '\0';
 		if (Serial.available() > 0) {
 			key = Serial.read();
+			if (key == '\n') {
+				key = '\0';
+			}
 		}
 		return key;
 	}
@@ -25,8 +28,10 @@ public:
 
 class KeyPad : public IKeyInput {
 private:
-	const byte row_pins[3] = {D0, D3, D4};
-	const byte col_pins[3] = {D5, D6, D7};
+	const byte row_size = 4;
+	const byte col_size = 4;
+	const byte row_pins[4] = {13, 12, 14, 27};
+	const byte col_pins[4] = {26, 25, 33, 32};
 
 	const char keys[4][4] = {
 		{'1', '2', '3', 'A'},
@@ -39,22 +44,23 @@ private:
 
 	char scan_key() {
 		char key = '\0';
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < row_size; i++) {
 			digitalWrite(row_pins[i], LOW);
-			for (int j = 0; j < 3; j++) {
+			for (int j = 0; j < col_size; j++) {
 				if (digitalRead(col_pins[j]) == LOW) {
 					key = keys[i][j];
+					Serial.println("Pressed: " + String(key));
 				}
 			}
 			digitalWrite(row_pins[i], HIGH);
-			delayMicroseconds(100);
+			delay(30);
 		}
 		return key;
 	}
 
 public:
 	KeyPad() {
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < row_size; i++) {
 			pinMode(row_pins[i], OUTPUT);
 			digitalWrite(row_pins[i], HIGH);
 			pinMode(col_pins[i], INPUT_PULLUP);

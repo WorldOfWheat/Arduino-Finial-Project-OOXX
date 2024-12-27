@@ -45,18 +45,32 @@ Coordinate get_coordinate_by_key(char key) {
 			return Coordinate(0, 1);
 		case '3':
 			return Coordinate(0, 2);
+		case 'A':
+			return Coordinate(0, 3);
 		case '4':
 			return Coordinate(1, 0);
 		case '5':
 			return Coordinate(1, 1);
 		case '6':
 			return Coordinate(1, 2);
+		case 'B':
+			return Coordinate(1, 3);
 		case '7':
 			return Coordinate(2, 0);
 		case '8':
 			return Coordinate(2, 1);
 		case '9':
 			return Coordinate(2, 2);
+		case 'C':
+			return Coordinate(2, 3);
+		case '*':
+			return Coordinate(3, 0);
+		case '0':
+			return Coordinate(3, 1);
+		case '#':
+			return Coordinate(3, 2);
+		case 'D':
+			return Coordinate(3, 3);
 		default:
 			return Coordinate(-1, -1);
 	}
