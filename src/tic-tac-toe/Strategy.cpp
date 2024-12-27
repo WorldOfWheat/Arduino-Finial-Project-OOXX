@@ -30,12 +30,15 @@ private:
 	IBoard* board;
 	GameJudge game_judge;
 	Player robot_player;
+	byte max_depth = 4;
 
 	Player get_opponent(Player current_player) {
 		return current_player.getType() == PlayerType::O ? Player(PlayerType::X) : Player(PlayerType::O);
 	}
 
-	BestMoveResult minimax(Player current_player, int alpha, int beta) {
+	BestMoveResult minimax(Player current_player, int alpha, int beta, byte depth = 0) {
+		Serial.println("Minimax");
+
 		int minimum_value = 1e9;
 		int maximum_value = -1e9;
 		Coordinate best_coordinate;
@@ -51,6 +54,10 @@ private:
 			}
 			return BestMoveResult(-1);
 		}
+
+		if (depth == max_depth) {
+			return BestMoveResult(0);
+		}
 		
 		for (int i = 0; i < board->get_row_size(); i++) {
 			for (int j = 0; j < board->get_col_size(); j++) {
@@ -62,7 +69,7 @@ private:
 				board->draw(coordinate, current_player);
 				Player opponent = get_opponent(current_player);
 
-				BestMoveResult next_move = minimax(opponent, alpha, beta);
+				BestMoveResult next_move = minimax(opponent, alpha, beta, depth + 1);
 
 				(*board).erase(coordinate);
 
@@ -100,10 +107,7 @@ public:
 	{}
 
 	Coordinate get_best_move() {
-		if (board->is_board_empty()) {
-			return Coordinate(1, 1);
-		}
-		BestMoveResult best_move = minimax(this->robot_player, -1e9, 1e9);
+		BestMoveResult best_move = minimax(this->robot_player, -1e9, 1e9, 0);
 		return best_move.coordinate;
 	}
 };
