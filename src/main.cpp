@@ -24,7 +24,7 @@ void setup() {
 	Serial.println("Start");
 
 	settings_manager = new SettingsManager();
-	key_input = new KeyPad();
+	key_input = new Keyboard();
 	board = new Board();
 	judge = new GameJudge(board);
 	display = new OLED(board);
@@ -32,7 +32,6 @@ void setup() {
 
 	display->showWelcome();
 }
-
 
 void updateDifficulty() {
 	byte difficulty = settings_manager->getDifficulty();

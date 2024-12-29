@@ -30,7 +30,7 @@ private:
 	IBoard* board;
 	GameJudge game_judge;
 	Player robot_player;
-	byte max_depth = 4;
+	byte max_depth = 3;
 
 	Player get_opponent(Player current_player) {
 		return current_player.getType() == PlayerType::O ? Player(PlayerType::X) : Player(PlayerType::O);
@@ -71,7 +71,7 @@ private:
 
 				BestMoveResult next_move = minimax(opponent, alpha, beta, depth + 1);
 
-				(*board).erase(coordinate);
+				board->erase(coordinate);
 
 				if (alpha > beta) {
 					break;
