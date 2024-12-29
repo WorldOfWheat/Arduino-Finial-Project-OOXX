@@ -37,7 +37,7 @@
 
 6. 遊玩畫面
  	- 下方的 KeyPad 代表 4x4 的每一格<br/>
-      	- 若於和機器人對戰時顯示 Calculating 則代表計算中<br/>
+ 	- 若於和機器人對戰時顯示 Calculating 則代表計算中<br/>
 	- 按下之後需要再按下同一格代表確定，按下其它格則代表取消
 <Img src="https://i.imgur.com/MPhGatk.jpeg" width="400px" />
 <Img src="https://i.imgur.com/nf37Qtc.jpeg" width="400px" />
