@@ -19,6 +19,8 @@ public:
 	virtual void showDraw() = 0;
 	virtual void showWinner(PlayerType type) = 0;
 	virtual void showError() = 0;
+	virtual void showCalculating() = 0;
+	virtual void resetCalculating() = 0;
 };
 
 class SerialDisplay : public IDisplay {
@@ -155,6 +157,10 @@ public:
 		Serial.println("Error");
 		Serial.println("Please click reset button");
 	}
+
+	void showLoading() {
+		Serial.println("Loading...");
+	}
 };
 
 class OLED : public IDisplay {
@@ -217,13 +223,18 @@ private:
 		}
 	}
 
+	void setNormalTextStyle() {
+		display->setTextColor(WHITE);
+		display->setTextSize(1);
+	}
+
 public:
 	OLED(IBoard* board) {
 		this->board = board;
 		display = new Adafruit_SSD1306(128, 64, &Wire, -1);
 		display->begin(SSD1306_SWITCHCAPVCC, 0x3c);
-		display->setTextColor(WHITE);
-		display->setTextSize(1);
+		display->clearDisplay();
+		this->setNormalTextStyle();
 	}
 
 	void showWelcome() {
@@ -238,6 +249,7 @@ public:
 	void showBoard() {
 		display->clearDisplay();
 		display->setCursor(0, 0);
+		this->setNormalTextStyle();
 		printBoard();
 		display->setCursor(width / 2, 20);
 		display->display();
@@ -245,6 +257,7 @@ public:
 
 	void showGameOver() {
 		display->setCursor(0, 0);
+		this->setNormalTextStyle();
 		display->println("Game Over");
 		display->display();
 	}
@@ -252,6 +265,7 @@ public:
 	void showSettings() {
 		display->clearDisplay();
 		display->setCursor(0, 0);
+		this->setNormalTextStyle();
 		display->println("Settings");
 		display->println("1: Difficulty");
 		display->println("2: Turn");
@@ -264,6 +278,7 @@ public:
 	void showDifficulty(byte difficulty) {
 		display->clearDisplay();
 		display->setCursor(0, 0);
+		this->setNormalTextStyle();
 		display->println("Difficulty");
 		// add star to the selected difficulty
 		for (byte i = 1; i <= 4; i++) {
@@ -281,6 +296,7 @@ public:
 	void showTurn(bool turn) {
 		display->clearDisplay();
 		display->setCursor(0, 0);
+		this->setNormalTextStyle();
 		display->println("Turn");
 		// add star to the selected turn
 		if (turn) {
@@ -299,6 +315,7 @@ public:
 	void showIfUseBot(bool use) {
 		display->clearDisplay();
 		display->setCursor(0, 0);
+		this->setNormalTextStyle();
 		display->println("Use Bot");
 		if (use) {
 			display->print("*");
@@ -335,8 +352,24 @@ public:
 	void showError() {
 		display->clearDisplay();
 		display->setCursor(0, 0);
+		this->setNormalTextStyle();
 		display->println("Error");
 		display->println("Please click reset button");
+		display->display();
+	}
+
+	void showCalculating() {
+		this->setNormalTextStyle();
+		display->setCursor(this->width / 2 - 20, 0);
+		display->println("Calculating...");
+		display->display();
+	}
+
+	void resetCalculating() {
+		display->setCursor(this->width / 2 - 20, 0);
+		display->setTextSize(1);
+		display->setTextColor(BLACK);
+		display->println("Calculating...");
 		display->display();
 	}
 };

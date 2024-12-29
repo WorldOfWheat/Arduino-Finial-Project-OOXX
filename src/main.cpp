@@ -207,7 +207,9 @@ void loop() {
 		}
 			
 		case 23: {
+			display->showCalculating();
 			robot->play();
+			display->resetCalculating();
 			display->showBoard();
 			state = 24;
 			break;
