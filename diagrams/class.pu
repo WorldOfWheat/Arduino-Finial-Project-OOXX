@@ -20,10 +20,13 @@ interface IBoard {
 	+bool is_board_full()
 	+bool is_board_empty()
 	+Cell get_cell(Coordinate coordinate)
+	+byte get_row_size()
+	+byte get_col_size()
+	+void reset()
 }
 
 class Board {
-	-Cell cells[3][3]
+	-Cell cells[4][4]
 	+Board()
 }
 
@@ -108,10 +111,12 @@ interface Strategy {
 }
 
 class MinimaxStrategy {
-	-Player robot_player
+	-IBoard* board
 	-GameJudge game_judge
+	-Player robot_player
+	-byte max_depth = 3
 	-Player get_opponent()
-	-BestMoveResult minimax(Player player, int depth, int alpha, int beta)
+	-BestMoveResult minimax(Player player, byte alpha, byte beta, byte depth = 0)
 	+MinimaxStrategy(Player robot_player, IBoard board)
 }
 
@@ -132,6 +137,8 @@ interface IDisplay {
 	+void showDraw()
 	+void showWinner(PlayerType type)
 	+void showError()
+	+void showCalculating()
+	+void resetCalculating()
 }
 
 class SerialDisplay {
@@ -151,6 +158,7 @@ class OLED {
 	-void printBoardSpliter()
 	-void printBoard()
 	-void printDifficultyString(byte difficulty)
+	+OLED(IBoard* board)
 }
 
 interface IKeyInput {
@@ -159,13 +167,11 @@ interface IKeyInput {
 
 class Keyboard {
 	+char Keyboard()
-	+char get_key()
 }
 
 class KeyPad {
 	-char prev_key
 	+char KeyPad()
-	+char get_key()
 }
 
 Cell .down.|> ICell

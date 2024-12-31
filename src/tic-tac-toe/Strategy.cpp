@@ -30,13 +30,13 @@ private:
 	IBoard* board;
 	GameJudge game_judge;
 	Player robot_player;
-	byte max_depth = 3;
+	const byte max_depth = 3;
 
 	Player get_opponent(Player current_player) {
 		return current_player.getType() == PlayerType::O ? Player(PlayerType::X) : Player(PlayerType::O);
 	}
 
-	BestMoveResult minimax(Player current_player, int alpha, int beta, byte depth = 0) {
+	BestMoveResult minimax(Player current_player, byte alpha, byte beta, byte depth = 0) {
 		Serial.println("Minimax");
 
 		int minimum_value = 1e9;
@@ -107,7 +107,7 @@ public:
 	{}
 
 	Coordinate get_best_move() {
-		BestMoveResult best_move = minimax(this->robot_player, -1e9, 1e9, 0);
+		BestMoveResult best_move = minimax(this->robot_player, -1e9, 1e9);
 		return best_move.coordinate;
 	}
 };
