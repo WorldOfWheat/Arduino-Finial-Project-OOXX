@@ -3,9 +3,9 @@
 # 接線
 - SSD1306 使用 I2C 通訊
 - KeyPad
-	* Row 接腳為 D0、D3、D4
-	* Column 接腳為 D5、D6、D7
-	* 使用到的按鍵為數字鍵 1~9
+	* Row 接腳為 13、12、14、27
+	* Column 接腳為 26、25、33、32
+	* 使用到的按鍵為數字鍵 1~9、ABCD 和 *#
 # 操作介面
 1. 開機畫面
 	- 按下 1 可以進入遊戲
@@ -40,4 +40,4 @@
  	- 若於和機器人對戰時顯示 Calculating 則代表計算中<br/>
 	- 按下之後需要再按下同一格代表確定，按下其它格則代表取消
 <Img src="https://i.imgur.com/MPhGatk.jpeg" width="400px" />
-<Img src="https://i.imgur.com/nf37Qtc.jpeg" width="400px" />
+<Img src="https://i.imgur.com/3flYb0U.jpeg" width="400px" />
